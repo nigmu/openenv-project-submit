@@ -18,19 +18,29 @@ venv/
 env/
 .env/
 .python-version
+**/.venv/
 
 # Bytecode & caches
 __pycache__/
+**/__pycache__/
 *.py[cod]
+**/*.py[cod]
 *$py.class
 *.so
 .pytest_cache/
+**/.pytest_cache/
 .mypy_cache/
+**/.mypy_cache/
 .ruff_cache/
+**/.ruff_cache/
 .hypothesis/
+**/.hypothesis/
 .cache/
+**/.cache/
 *.egg-info/
+**/*.egg-info/
 .eggs/
+**/.eggs/
 *.egg
 
 # Training / experiment outputs (large, not needed to run the server)
