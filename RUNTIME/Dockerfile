@@ -1,9 +1,3 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
-#
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree.
-
 # Multi-stage build using openenv-base
 # This Dockerfile is flexible and works for both:
 # - In-repo environments (with local OpenEnv sources)
@@ -56,9 +50,9 @@ RUN if ! command -v uv >/dev/null 2>&1; then \
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     if [ -f uv.lock ]; then \
-        uv sync --frozen --no-editable; \
+        uv sync --frozen; \
     else \
-        uv sync --no-editable; \
+        uv sync; \
     fi
 
 # Final runtime stage
@@ -87,4 +81,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Run the FastAPI server
 # The module path is constructed to work with the /app/env structure
-CMD ["sh", "-c", "cd /app/env && uvicorn server.app:app --host 0.0.0.0 --port 8000"]
+# CMD ["sh", "-c", "cd /app/env && uvicorn server.app:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "cd /app/env && uvicorn demo.server.app:app --host 0.0.0.0 --port 8000"]

@@ -14,11 +14,10 @@ test_client.py
 .venv
 __pycache__
 *.pyc
-.git
-.gitignore
 math_env_model/
-
-
+test_client.py
+PATHS.md
+cursor.code-workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

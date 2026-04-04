@@ -1,8 +1,8 @@
 ---
 title: Demo Environment Server
-emoji: 🔈
-colorFrom: yellow
-colorTo: gray
+emoji: 💾
+colorFrom: indigo
+colorTo: blue
 sdk: docker
 pinned: false
 app_port: 8000

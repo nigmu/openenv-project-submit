@@ -1,0 +1,97 @@
+test.md
+test.py
+test.json
+test.txt
+test.csv
+test.xls
+test.xlsx
+test.jsonl
+test.jsonl.gz
+test.jsonl.bz2
+test.jsonl.xz
+test.jsonl.zip
+TRAINING/
+
+# Virtual environments (image builds its own via uv sync)
+.venv/
+venv/
+env/
+.env/
+.python-version
+
+# Bytecode & caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.cache/
+*.egg-info/
+.eggs/
+*.egg
+
+# Training / experiment outputs (large, not needed to run the server)
+math_env_model/
+checkpoints/
+wandb/
+lightning_logs/
+runs/
+outputs/
+
+# Version control & CI
+.git/
+.gitignore
+.github/
+.gitattributes
+
+# IDE & editor
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# Tests & coverage (not required in runtime image)
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+nosetests.xml
+.tox/
+.nox/
+
+# Packaging / local build artifacts
+build/
+dist/
+downloads/
+wheels/
+pip-log.txt
+
+# OS noise
+Thumbs.db
+.Desktop.ini
+.DS_Store
+
+# Local env files & secrets (never bake into images)
+.env
+.env.*
+!.env.example
+
+# Optional: large model caches if present under project dir
+.cache/
+
+# Docker (context only; not needed inside copied app tree)
+Dockerfile*
+.dockerignore
+
+# Misc local scratch
+*.log
+tmp/
+temp/
+
+# Client-side training project lives at repo ../trainer (not in demo context when building from demo/)
+trainer/
