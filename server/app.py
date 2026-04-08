@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from contextlib import asynccontextmanager
 from typing import Any, Optional
 
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Body, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -107,7 +107,9 @@ async def log_requests(request: Request, call_next) -> Response:
 
 
 @app.post("/reset")
-async def reset(request: ResetRequest) -> Observation:
+async def reset(
+    request: ResetRequest = Body(default_factory=ResetRequest),
+) -> Observation:
     global env
     if env is None:
         raise HTTPException(status_code=500, detail="Environment not initialized")
