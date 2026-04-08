@@ -192,3 +192,16 @@ async def huggingface_space_web_stub():
 @app.get("/", response_class=HTMLResponse)
 async def root():
     return _LANDING_HTML
+
+
+def main() -> None:
+    """Console entry point for `server` script and `python -m server.app` (openenv multi-mode)."""
+    import uvicorn
+
+    port = int(os.environ.get("PORT", "8000"))
+    host = os.environ.get("HOST", "0.0.0.0")
+    uvicorn.run("server.app:app", host=host, port=port)
+
+
+if __name__ == "__main__":
+    main()

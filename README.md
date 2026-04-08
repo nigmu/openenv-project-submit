@@ -47,10 +47,9 @@ Requires the server above. From the same repo root:
 
 ```powershell
 $env:ENV_BASE_URL = "http://127.0.0.1:8000"
-# Ollama demo (OpenAI client → local Ollama)
 $env:API_BASE_URL = "http://127.0.0.1:11434/v1"
 $env:MODEL_NAME = "llama3.2"
-$env:OLLAMA_API_KEY = "ollama"   # or set HF_TOKEN for Hugging Face / other providers
+$env:HF_TOKEN = "ollama"   # required for LLM path; no Python fallback — unset ⇒ rule-based only
 
 uv run python inference.py
 ```

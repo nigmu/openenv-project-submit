@@ -10,6 +10,13 @@ MANDATORY (hackathon)
   Optional:
     BENCHMARK      — Name shown in [START] env=... (default: customer-service-bot).
     VERBOSE_CHAT   — Set to 1 to print full customer/agent lines to stderr (stdout unchanged).
+    LOCAL_IMAGE_NAME — For OpenEnv docker-image clients only; unused here (HTTP env).
+
+  Pattern (submission sample):
+    API_BASE_URL = os.getenv("API_BASE_URL", "<your-active-endpoint>")
+    MODEL_NAME = os.getenv("MODEL_NAME", "<your-active-model>")
+    HF_TOKEN = os.getenv("HF_TOKEN")  # no default
+    LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")  # no default
 
 STDOUT: only these line types, in order per episode:
     [START] task=<name> env=<benchmark> model=<model_name>
@@ -46,22 +53,15 @@ if os.path.exists(_api_creds_path):
 
 # ---------------------------------------------------------------------------
 # Configuration (all paths relative to repo root; run: python inference.py)
-# Hackathon names: API_BASE_URL, MODEL_NAME, HF_TOKEN (OpenAI client).
-# Local Ollama demo: set OLLAMA_API_KEY or HF_TOKEN (often "ollama"); MODEL_NAME e.g. llama3.2
+# Defaults only for API_BASE_URL and MODEL_NAME; HF_TOKEN has no fallback (None if unset).
 # ---------------------------------------------------------------------------
 
+API_BASE_URL = os.getenv("API_BASE_URL", "<your-active-endpoint>")
+MODEL_NAME = os.getenv("MODEL_NAME", "<your-active-model>")
+HF_TOKEN = os.getenv("HF_TOKEN")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
+
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://127.0.0.1:8000")
-# OpenAI-compatible Ollama endpoint (see https://github.com/ollama/ollama/blob/main/docs/openai.md)
-_DEFAULT_LLM_BASE = "http://127.0.0.1:11434/v1"
-API_BASE_URL = os.getenv("API_BASE_URL", os.getenv("LLM_API_BASE", _DEFAULT_LLM_BASE))
-MODEL_NAME = os.getenv("MODEL_NAME", os.getenv("OLLAMA_MODEL", "llama3.2"))
-# HF_TOKEN is required for judging; Ollama accepts a placeholder — map OLLAMA_API_KEY for demos
-HF_TOKEN = (
-    os.getenv("HF_TOKEN")
-    or os.getenv("OPENAI_API_KEY")
-    or os.getenv("OLLAMA_API_KEY")
-    or "ollama"
-)
 BENCHMARK = os.getenv("BENCHMARK", "customer-service-bot")
 
 SUCCESS_SCORE_THRESHOLD = float(os.getenv("SUCCESS_SCORE_THRESHOLD", "0.1"))
@@ -76,10 +76,13 @@ TASK_NAMES = {
     "hard": "hard_escalation",
 }
 
-USE_LLM = bool(HF_TOKEN and "your-key" not in HF_TOKEN.lower() and HF_TOKEN != "dummy")
+USE_LLM = bool(
+    HF_TOKEN
+    and "your-key" not in HF_TOKEN.lower()
+    and HF_TOKEN != "dummy"
+)
 OPENAI_CLIENT: Optional[OpenAI] = None
-if USE_LLM:
-    # OpenAI SDK; base_url points at Ollama or any OpenAI-compatible server
+if USE_LLM and HF_TOKEN is not None:
     OPENAI_CLIENT = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
 
 

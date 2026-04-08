@@ -13,3 +13,16 @@ dependencies = [
     "openenv-core>=0.2.3",
     "openenv>=0.1.13",
 ]
+
+[project.scripts]
+server = "server.app:main"
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["server*", "src*"]
+
+[tool.setuptools]
+py-modules = ["models"]
