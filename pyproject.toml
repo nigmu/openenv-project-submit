@@ -1,0 +1,15 @@
+[project]
+name = "openenv-customer-service-bot"
+version = "0.1.0"
+description = "OpenEnv customer-service runtime (FastAPI + graded tasks)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.100",
+    "uvicorn[standard]>=0.23",
+    "pydantic>=2",
+    "openai>=1",
+    "requests>=2.31",
+    "openenv-core>=0.2.3",
+    "openenv>=0.1.13",
+]

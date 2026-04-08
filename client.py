@@ -12,9 +12,16 @@ class ServiceBotClient:
         model_name: Optional[str] = None,
         api_key: Optional[str] = None,
     ):
-        self.api_base_url = api_base_url or os.getenv("API_BASE_URL", "http://localhost:8000")
-        self.model_name = model_name or os.getenv("MODEL_NAME", "gpt-3.5-turbo")
-        self.api_key = api_key or os.getenv("HF_TOKEN", os.getenv("OPENAI_API_KEY", "dummy"))
+        self.api_base_url = api_base_url or os.getenv(
+            "API_BASE_URL", os.getenv("LLM_API_BASE", "http://127.0.0.1:11434/v1")
+        )
+        self.model_name = model_name or os.getenv("MODEL_NAME", os.getenv("OLLAMA_MODEL", "llama3.2"))
+        self.api_key = api_key or (
+            os.getenv("HF_TOKEN")
+            or os.getenv("OLLAMA_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+            or "ollama"
+        )
 
         self.client = OpenAI(
             base_url=self.api_base_url,

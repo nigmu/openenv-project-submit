@@ -23,7 +23,6 @@ cursor.code-workspace
 __pycache__/
 *.py[codz]
 *$py.class
-requirements.txt
 openenv-env/
 main.py
 # C extensions
@@ -246,9 +245,9 @@ TRAINING/*.pt
 TRAINING/*.pth
 TRAINING/*.onnx
 
-# Customer service bot cache
-RUNTIME/customer-service-bot/__pycache__/
-RUNTIME/customer-service-bot/**/__pycache__/
+# Legacy nested runtime (delete locally if an empty folder remains locked)
+RUNTIME/
+
 
 # API keys (development only)
 ALL_API

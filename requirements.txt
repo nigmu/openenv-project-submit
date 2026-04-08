@@ -1,0 +1,8 @@
+# Optional fallback if you do not use uv:
+#   pip install -r requirements.txt
+fastapi>=0.100
+uvicorn[standard]>=0.23
+pydantic>=2
+openai>=1
+requests>=2.31
+openenv-core>=0.2.3
