@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from server.environment import CustomerServiceEnv
@@ -165,3 +166,29 @@ async def get_state() -> State:
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+_LANDING_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Customer Service Bot — OpenEnv</title></head>
+<body>
+<h1>OpenEnv API</h1>
+<p>This Space exposes a JSON API (no Gradio UI). Use:</p>
+<ul>
+<li><a href="/docs">/docs</a> — interactive API (Swagger)</li>
+<li><a href="/health">/health</a> — health check</li>
+<li><code>POST /reset</code>, <code>POST /step</code>, <code>GET /state</code></li>
+</ul>
+</body>
+</html>"""
+
+
+@app.get("/web", response_class=HTMLResponse)
+async def huggingface_space_web_stub():
+    """HF Spaces may probe /web when a web UI is expected; avoids 404s in Space logs."""
+    return _LANDING_HTML
+
+
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    return _LANDING_HTML

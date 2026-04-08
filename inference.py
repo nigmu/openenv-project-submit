@@ -13,7 +13,7 @@ MANDATORY (hackathon)
 STDOUT: only these line types, in order per episode:
     [START] task=<name> env=<benchmark> model=<model_name>
     [STEP]  step=<n> action=<str> reward=<0.00> done=<true|false> error=<msg|null>
-    [END]   success=<true|false> steps=<n> score=<0.00> rewards=<r1,r2,...>
+    [END]   success=<true|false> steps=<n> score=<0.000> rewards=<r1,r2,...>  (score 3 decimals per sample)
 
 All LLM calls use the OpenAI client with API_BASE_URL, MODEL_NAME, HF_TOKEN.
 """
@@ -106,8 +106,9 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+    # Sample spec: rewards at 2 decimals; official sample uses score with 3 decimals
     print(
-        f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}",
+        f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}",
         flush=True,
     )
 
