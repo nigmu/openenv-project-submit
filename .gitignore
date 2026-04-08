@@ -249,3 +249,8 @@ TRAINING/*.onnx
 # Customer service bot cache
 RUNTIME/customer-service-bot/__pycache__/
 RUNTIME/customer-service-bot/**/__pycache__/
+
+# API keys (development only)
+ALL_API
+.env
+.env.local

@@ -17,6 +17,7 @@ class CustomerState:
     is_resolved: bool = False
     frustration_level: float = 0.0
     last_response_quality: float = 0.5
+    has_been_addressed: bool = False
 
 
 class CustomerSimulator:
@@ -36,6 +37,8 @@ class CustomerSimulator:
                 "Okay, I appreciate the information.",
                 "Great, thanks for letting me know.",
                 "That makes sense, thank you.",
+                "Perfect, that's exactly what I needed to know.",
+                "Got it, thank you for the clear explanation.",
             ],
             "neutral_ack": [
                 "Okay.",
@@ -44,7 +47,7 @@ class CustomerSimulator:
                 "Understood.",
             ],
             "negative_ack": [
-                "That's not what I asked about.",
+                "That's not quite what I was asking.",
                 "I don't think you understood my question.",
                 "That doesn't really help me.",
                 "I'm not satisfied with that answer.",
@@ -73,6 +76,12 @@ class CustomerSimulator:
                 "How long will that take to process?",
                 "Can you send me a confirmation of this?",
             ],
+            "grateful": [
+                "Thank you so much for your help!",
+                "I really appreciate you sorting this out for me.",
+                "That's great, thanks for taking care of it!",
+                "Wonderful, thank you for the quick resolution!",
+            ],
         }
 
     def get_initial_message(self) -> str:
@@ -90,6 +99,9 @@ class CustomerSimulator:
             self.state.frustration_level = min(1.0, self.state.frustration_level + 0.25)
         elif response_quality > 0.7:
             self.state.frustration_level = max(0.0, self.state.frustration_level - 0.15)
+
+        if response_quality >= 0.6:
+            self.state.has_been_addressed = True
 
         if self.state.frustration_level > 0.7 and not self.state.is_escalated:
             if self._rng.random() < 0.4:
@@ -119,28 +131,39 @@ class CustomerSimulator:
     def _generate_contextual_response(self, quality: float, action_type: str) -> str:
         mood = self.state.current_mood
 
-        if mood >= 7.0:
-            if quality > 0.7:
+        if quality >= 0.7:
+            if mood >= 6.0:
+                if self.state.has_been_addressed and self.state.conversation_turns >= 2:
+                    return self._rng.choice(self._response_templates["grateful"])
                 if self.state.conversation_turns >= 3:
                     return self._rng.choice(self._response_templates["resolution_check"])
                 return self._rng.choice(self._response_templates["positive_ack"])
-            return self._rng.choice(self._response_templates["neutral_ack"])
-
-        elif mood >= 4.0:
-            if quality < 0.4:
-                return self._rng.choice(self._response_templates["negative_ack"])
-            elif quality > 0.7:
+            elif mood >= 4.0:
                 return self._rng.choice(self._response_templates["positive_ack"])
-            return self._rng.choice(self._response_templates["neutral_ack"])
+            else:
+                return self._rng.choice(self._response_templates["follow_up"])
+
+        elif quality >= 0.4:
+            if mood >= 7.0:
+                return self._rng.choice(self._response_templates["positive_ack"])
+            elif mood >= 4.0:
+                if self.state.conversation_turns <= 1:
+                    return self._rng.choice(self._response_templates["follow_up"])
+                return self._rng.choice(self._response_templates["neutral_ack"])
+            else:
+                if self.state.conversation_turns <= 2:
+                    return self._rng.choice(self._response_templates["follow_up"])
+                return self._rng.choice(self._response_templates["negative_ack"])
 
         else:
             if self.state.is_escalated:
                 return self._rng.choice(self._response_templates["angry"])
-            elif quality < 0.4:
+            elif self.state.conversation_turns <= 1:
+                return self._rng.choice(self._response_templates["negative_ack"])
+            elif mood < 3.0:
                 return self._rng.choice(self._response_templates["frustrated"])
-            elif quality > 0.7:
-                return self._rng.choice(self._response_templates["follow_up"])
-            return self._rng.choice(self._response_templates["negative_ack"])
+            else:
+                return self._rng.choice(self._response_templates["negative_ack"])
 
     def is_done(self, max_turns: int = 8) -> bool:
         if self.state.conversation_turns >= max_turns:
