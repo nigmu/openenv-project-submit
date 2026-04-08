@@ -57,6 +57,8 @@ uv run python inference.py
 
 Structured logs go to **stdout** (`[START]`, `[STEP]`, `[END]`). Details go to **stderr**.
 
+To print the **full chat transcript** while keeping graded stdout clean: `$env:VERBOSE_CHAT = "1"` before running `inference.py` (transcript on stderr only).
+
 ### Hugging Face / remote OpenAI-compatible
 
 Set submission variables as required by the hackathon:

@@ -9,6 +9,7 @@ MANDATORY (hackathon)
     ENV_BASE_URL   — Customer-service environment server (default http://localhost:8000).
   Optional:
     BENCHMARK      — Name shown in [START] env=... (default: customer-service-bot).
+    VERBOSE_CHAT   — Set to 1 to print full customer/agent lines to stderr (stdout unchanged).
 
 STDOUT: only these line types, in order per episode:
     [START] task=<name> env=<benchmark> model=<model_name>
@@ -65,6 +66,8 @@ BENCHMARK = os.getenv("BENCHMARK", "customer-service-bot")
 
 SUCCESS_SCORE_THRESHOLD = float(os.getenv("SUCCESS_SCORE_THRESHOLD", "0.1"))
 RESET_SEED = int(os.getenv("RESET_SEED", "42"))
+# Set VERBOSE_CHAT=1 to print the full customer/agent transcript on stderr (stdout stays [START]/[STEP]/[END] only).
+VERBOSE_CHAT = os.getenv("VERBOSE_CHAT", "").lower() in ("1", "true", "yes")
 
 # openenv.yaml task names
 TASK_NAMES = {
@@ -130,6 +133,7 @@ def run_episode(task_key: str, scenario_index: int = 0) -> dict[str, Any]:
     score = 0.0
     success = False
     last_info: dict[str, Any] = {}
+    conversation: List[str] = []
 
     log_start(task=task_name, env=BENCHMARK, model=MODEL_NAME)
 
@@ -142,10 +146,10 @@ def run_episode(task_key: str, scenario_index: int = 0) -> dict[str, Any]:
         resp = requests.post(f"{ENV_BASE_URL}/reset", json=reset_payload, timeout=60)
         if resp.status_code != 200:
             _stderr(f"reset failed: {resp.status_code} {resp.text}")
-            return _finalize_episode(rewards, steps_taken, 0.0, False)
+            return _finalize_episode(rewards, steps_taken, 0.0, False, conversation)
 
         observation = resp.json()
-        conversation: List[str] = [f"Customer: {observation['customer_message']}"]
+        conversation = [f"Customer: {observation['customer_message']}"]
         done = False
         step_num = 0
 
@@ -167,7 +171,7 @@ def run_episode(task_key: str, scenario_index: int = 0) -> dict[str, Any]:
                     log_step(step_num, action_str, 0.0, True, err)
                     rewards.append(0.0)
                     steps_taken = step_num
-                    return _finalize_episode(rewards, steps_taken, 0.0, False)
+                    return _finalize_episode(rewards, steps_taken, 0.0, False, conversation)
 
                 result = sresp.json()
                 observation = result["observation"]
@@ -187,7 +191,7 @@ def run_episode(task_key: str, scenario_index: int = 0) -> dict[str, Any]:
                 log_step(step_num, action_str, 0.0, True, err)
                 rewards.append(0.0)
                 steps_taken = step_num
-                return _finalize_episode(rewards, steps_taken, 0.0, False)
+                return _finalize_episode(rewards, steps_taken, 0.0, False, conversation)
 
         tr = last_info.get("task_result") or {}
         raw_score = float(tr.get("score", 0.0))
@@ -195,11 +199,11 @@ def run_episode(task_key: str, scenario_index: int = 0) -> dict[str, Any]:
             raw_score = sum(rewards) / max(1, len(rewards)) if rewards else 0.0
         score = min(1.0, max(0.0, raw_score))
         success = score >= SUCCESS_SCORE_THRESHOLD
-        return _finalize_episode(rewards, steps_taken, score, success)
+        return _finalize_episode(rewards, steps_taken, score, success, conversation)
 
     except Exception as e:
         _stderr(f"episode error: {e}")
-        return _finalize_episode(rewards, steps_taken, 0.0, False)
+        return _finalize_episode(rewards, steps_taken, 0.0, False, conversation)
 
 
 def _finalize_episode(
@@ -207,7 +211,13 @@ def _finalize_episode(
     steps_taken: int,
     score: float,
     success: bool,
+    conversation: Optional[List[str]] = None,
 ) -> dict[str, Any]:
+    if VERBOSE_CHAT and conversation:
+        _stderr("--- Full conversation (stderr only; not graded stdout) ---")
+        for line in conversation:
+            _stderr(f"  {line}")
+        _stderr("---")
     log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
     return {
         "score": score,
